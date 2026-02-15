@@ -1,0 +1,7 @@
+# Ignore everything by default
+*
+
+# But track these
+!.gitignore
+!n8n-automation/
+!n8n-automation/**

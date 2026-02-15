@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# n8n data
+.n8n/
+
+# Logs
+logs/
+*.log
+
+# Environment
+.env.local
+.env.production
+
+# Process IDs
+*.pid
+
+# Tunnel info
+tunnel-url.txt
