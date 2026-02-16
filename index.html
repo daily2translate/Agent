@@ -149,7 +149,8 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2anltcmN2bWl2YXV3ZXRwaGhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzExMzcwNzUsImV4cCI6MjA4NjcxMzA3NX0.9zlrYgMvle4Hf9eSaGNetcL-yHyN4Wcy-C8eZKU7L1s';
 
         // Initialize Supabase client
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // Fetch and display posts
         async function loadPosts() {
@@ -157,7 +158,7 @@
 
             try {
                 // Fetch posts from Supabase
-                const { data: posts, error } = await supabase
+                const { data: posts, error } = await supabaseClient
                     .from('posts')
                     .select('*')
                     .order('created_at', { ascending: false });
