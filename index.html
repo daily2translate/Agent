@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Blog - Powered by Supabase</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            font-size: 1.2rem;
+            color: #667eea;
+        }
+
+        .posts-grid {
+            display: grid;
+            gap: 2rem;
+        }
+
+        .post-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .post-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        .post-title {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: #2d3748;
+        }
+
+        .post-meta {
+            color: #718096;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .post-content {
+            color: #4a5568;
+            font-size: 1.05rem;
+            line-height: 1.8;
+        }
+
+        .post-tags {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background: #edf2f7;
+            color: #667eea;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .error {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #718096;
+            margin-top: 4rem;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .post-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🚀 My Blog</h1>
+        <p>Powered by GitHub Pages + Supabase</p>
+    </header>
+
+    <div class="container">
+        <div id="posts-container">
+            <div class="loading">📡 Loading posts...</div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Built with ❤️ using GitHub Pages and Supabase</p>
+    </footer>
+
+    <script type="module">
+        // Supabase configuration
+        const SUPABASE_URL = 'https://dvjymrcvmivauwetphha.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2anltcmN2bWl2YXV3ZXRwaGhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzExMzcwNzUsImV4cCI6MjA4NjcxMzA3NX0.9zlrYgMvle4Hf9eSaGNetcL-yHyN4Wcy-C8eZKU7L1s';
+
+        // Initialize Supabase client
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Fetch and display posts
+        async function loadPosts() {
+            const container = document.getElementById('posts-container');
+
+            try {
+                // Fetch posts from Supabase
+                const { data: posts, error } = await supabase
+                    .from('posts')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                if (!posts || posts.length === 0) {
+                    container.innerHTML = '<div class="loading">📝 No posts yet. Create your first post!</div>';
+                    return;
+                }
+
+                // Display posts
+                container.innerHTML = `
+                    <div class="posts-grid">
+                        ${posts.map(post => `
+                            <article class="post-card">
+                                <h2 class="post-title">${escapeHtml(post.title)}</h2>
+                                <div class="post-meta">
+                                    📅 ${new Date(post.created_at).toLocaleDateString('ko-KR', {
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric'
+                                    })}
+                                    ${post.author ? `· ✍️ ${escapeHtml(post.author)}` : ''}
+                                </div>
+                                <div class="post-content">
+                                    ${escapeHtml(post.content)}
+                                </div>
+                                ${post.tags && post.tags.length > 0 ? `
+                                    <div class="post-tags">
+                                        ${post.tags.map(tag => `<span class="tag">#${escapeHtml(tag)}</span>`).join('')}
+                                    </div>
+                                ` : ''}
+                            </article>
+                        `).join('')}
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading posts:', error);
+                container.innerHTML = `
+                    <div class="error">
+                        ⚠️ Error loading posts: ${error.message}
+                        <br><br>
+                        Please check your Supabase configuration.
+                    </div>
+                `;
+            }
+        }
+
+        // Utility function to escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Load posts when page loads
+        loadPosts();
+    </script>
+</body>
+</html>
