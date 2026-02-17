@@ -1,0 +1,18 @@
+{
+  "name": "n8n-automation-agent",
+  "version": "1.0.0",
+  "description": "n8n automation environment for Agent workspace",
+  "main": "index.js",
+  "scripts": {
+    "start": "n8n start",
+    "start:tunnel": "bash start-with-tunnel.sh",
+    "dev": "n8n start --tunnel"
+  },
+  "keywords": ["n8n", "automation", "workflow"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "n8n": "^1.76.0"
+  },
+  "devDependencies": {}
+}

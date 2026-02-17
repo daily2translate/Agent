@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- AI Neural Network Icon - Monochrome -->
+  <defs>
+    <style>
+      .node { fill: #ffffff; }
+      .connection { stroke: #8a8a8a; stroke-width: 2; fill: none; }
+      .glow { filter: url(#glow); }
+    </style>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="200" height="200" fill="#0a0a0a"/>
+
+  <!-- Neural Network Connections -->
+  <g class="connection">
+    <!-- Layer 1 to Layer 2 -->
+    <line x1="40" y1="60" x2="100" y2="50"/>
+    <line x1="40" y1="60" x2="100" y2="100"/>
+    <line x1="40" y1="60" x2="100" y2="150"/>
+    <line x1="40" y1="100" x2="100" y2="50"/>
+    <line x1="40" y1="100" x2="100" y2="100"/>
+    <line x1="40" y1="100" x2="100" y2="150"/>
+    <line x1="40" y1="140" x2="100" y2="50"/>
+    <line x1="40" y1="140" x2="100" y2="100"/>
+    <line x1="40" y1="140" x2="100" y2="150"/>
+
+    <!-- Layer 2 to Layer 3 -->
+    <line x1="100" y1="50" x2="160" y2="80"/>
+    <line x1="100" y1="50" x2="160" y2="120"/>
+    <line x1="100" y1="100" x2="160" y2="80"/>
+    <line x1="100" y1="100" x2="160" y2="120"/>
+    <line x1="100" y1="150" x2="160" y2="80"/>
+    <line x1="100" y1="150" x2="160" y2="120"/>
+  </g>
+
+  <!-- Neural Network Nodes -->
+  <g class="node glow">
+    <!-- Input Layer -->
+    <circle cx="40" cy="60" r="8"/>
+    <circle cx="40" cy="100" r="8"/>
+    <circle cx="40" cy="140" r="8"/>
+
+    <!-- Hidden Layer -->
+    <circle cx="100" cy="50" r="8"/>
+    <circle cx="100" cy="100" r="8"/>
+    <circle cx="100" cy="150" r="8"/>
+
+    <!-- Output Layer -->
+    <circle cx="160" cy="80" r="10"/>
+    <circle cx="160" cy="120" r="10"/>
+  </g>
+
+  <!-- AI Text -->
+  <text x="100" y="190" font-family="JetBrains Mono, monospace" font-size="20" font-weight="bold" fill="#ffffff" text-anchor="middle">AI</text>
+</svg>

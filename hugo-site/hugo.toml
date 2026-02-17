@@ -1,8 +1,49 @@
 baseURL = 'https://daily2translate.github.io/workspace-domain-repo/'
 languageCode = 'en-us'
-title = 'My Portfolio & Blog'
+title = 'AI Research & Innovation'
 theme = 'PaperMod'
 
 [params]
+  description = 'Exploring the frontiers of Artificial Intelligence'
+  keywords = ['AI', 'Machine Learning', 'Deep Learning', 'Neural Networks']
+  author = 'AI Researcher'
+
   ShowShareButtons = true
   ShowReadingTime = true
+  ShowBreadCrumbs = true
+  ShowPostNavLinks = true
+  ShowCodeCopyButtons = true
+
+  # AI Theme - Monochrome Design
+  defaultTheme = 'dark'
+  disableThemeToggle = false
+
+  [params.homeInfoParams]
+    Title = 'AI Research & Innovation Hub'
+    Content = '''
+Exploring the cutting edge of Artificial Intelligence, Machine Learning, and Neural Networks.
+Where human creativity meets computational intelligence.
+    '''
+
+  [[params.socialIcons]]
+    name = 'github'
+    url = 'https://github.com'
+
+  [params.assets]
+    favicon = '/images/ai-icon.svg'
+    favicon16x16 = '/images/ai-icon.svg'
+    favicon32x32 = '/images/ai-icon.svg'
+
+[menu]
+  [[menu.main]]
+    name = 'Home'
+    url = '/'
+    weight = 1
+  [[menu.main]]
+    name = 'Research'
+    url = '/posts/'
+    weight = 2
+  [[menu.main]]
+    name = 'About'
+    url = '/about/'
+    weight = 3

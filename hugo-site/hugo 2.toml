@@ -1,0 +1,61 @@
+baseURL = 'https://daily2translate.github.io/workspace-domain-repo/'
+languageCode = 'en-us'
+title = 'My Portfolio & Blog'
+theme = 'PaperMod'
+
+[params]
+  description = "A modern portfolio and blog showcasing projects and ideas"
+  author = "Your Name"
+
+  # Enable search
+  ShowSearchButton = true
+  ShowShareButtons = true
+  ShowReadingTime = true
+  ShowPostNavLinks = true
+  ShowBreadCrumbs = true
+  ShowCodeCopyButtons = true
+
+  # Home page
+  homeInfoParams.Title = "Hi there 👋"
+  homeInfoParams.Content = """
+Welcome to my portfolio & blog!
+I'm passionate about building amazing web experiences.
+"""
+
+  # Social icons
+  [[params.socialIcons]]
+    name = "github"
+    url = "https://github.com/daily2translate"
+
+  [[params.socialIcons]]
+    name = "email"
+    url = "mailto:your@email.com"
+
+[menu]
+  [[menu.main]]
+    name = "Home"
+    url = "/"
+    weight = 1
+
+  [[menu.main]]
+    name = "Posts"
+    url = "/posts/"
+    weight = 2
+
+  [[menu.main]]
+    name = "Projects"
+    url = "/projects/"
+    weight = 3
+
+  [[menu.main]]
+    name = "About"
+    url = "/about/"
+    weight = 4
+
+  [[menu.main]]
+    name = "Search"
+    url = "/search/"
+    weight = 5
+
+[outputs]
+  home = ["HTML", "RSS", "JSON"]

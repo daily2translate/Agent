@@ -1,0 +1,277 @@
+/* AI-Themed Monochrome Design */
+
+:root {
+    --ai-black: #0a0a0a;
+    --ai-dark-gray: #1a1a1a;
+    --ai-medium-gray: #2a2a2a;
+    --ai-light-gray: #8a8a8a;
+    --ai-white: #f0f0f0;
+    --ai-accent: #ffffff;
+    --ai-border: #333333;
+    --ai-glow: rgba(255, 255, 255, 0.1);
+}
+
+/* Neural Network Background Pattern */
+body {
+    background-color: var(--ai-black);
+    background-image:
+        radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.03) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.03) 0%, transparent 50%);
+    background-attachment: fixed;
+}
+
+/* AI Geometric Patterns */
+.main::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 50px 50px;
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* Enhanced Typography for AI Theme */
+.post-title,
+.home-info .entry-header {
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Courier New', monospace;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, #ffffff 0%, #8a8a8a 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    position: relative;
+}
+
+/* Glowing Borders for Cards */
+.post-entry,
+.first-entry {
+    background: var(--ai-dark-gray);
+    border: 1px solid var(--ai-border);
+    box-shadow:
+        0 0 20px rgba(255, 255, 255, 0.05),
+        inset 0 0 20px rgba(255, 255, 255, 0.02);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.post-entry::before,
+.first-entry::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+    );
+    transition: left 0.5s ease;
+}
+
+.post-entry:hover::before,
+.first-entry:hover::before {
+    left: 100%;
+}
+
+.post-entry:hover,
+.first-entry:hover {
+    border-color: var(--ai-accent);
+    box-shadow:
+        0 0 30px rgba(255, 255, 255, 0.1),
+        inset 0 0 30px rgba(255, 255, 255, 0.05);
+    transform: translateY(-2px);
+}
+
+/* AI Circuit Lines */
+.post-entry::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--ai-accent), transparent);
+    transition: width 0.5s ease;
+}
+
+.post-entry:hover::after {
+    width: 100%;
+}
+
+/* Neural Node Bullets */
+.post-content ul li::marker {
+    content: '◆ ';
+    color: var(--ai-light-gray);
+}
+
+.post-content ol li::marker {
+    font-family: 'SF Mono', monospace;
+    font-weight: bold;
+}
+
+/* Code Blocks - Terminal Style */
+.post-content code {
+    background: var(--ai-black);
+    border: 1px solid var(--ai-border);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-family: 'SF Mono', 'Monaco', monospace;
+}
+
+.post-content pre {
+    background: var(--ai-black);
+    border: 1px solid var(--ai-border);
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+/* AI-themed Links */
+.post-content a,
+.entry-content a {
+    color: var(--ai-white);
+    text-decoration: none;
+    border-bottom: 1px solid var(--ai-light-gray);
+    transition: all 0.3s ease;
+}
+
+.post-content a:hover,
+.entry-content a:hover {
+    border-bottom: 1px solid var(--ai-accent);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* Header with AI Accent */
+.header {
+    background: linear-gradient(
+        180deg,
+        var(--ai-dark-gray) 0%,
+        transparent 100%
+    );
+    border-bottom: 1px solid var(--ai-border);
+    backdrop-filter: blur(10px);
+}
+
+/* Footer Styling */
+.footer {
+    border-top: 1px solid var(--ai-border);
+    background: linear-gradient(
+        0deg,
+        var(--ai-dark-gray) 0%,
+        transparent 100%
+    );
+}
+
+/* Button Styling */
+.button,
+button {
+    background: var(--ai-dark-gray);
+    border: 1px solid var(--ai-border);
+    color: var(--ai-white);
+    transition: all 0.3s ease;
+}
+
+.button:hover,
+button:hover {
+    background: var(--ai-medium-gray);
+    border-color: var(--ai-accent);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+}
+
+/* Home Info Section - AI Hub Style */
+.home-info {
+    background: linear-gradient(
+        135deg,
+        var(--ai-dark-gray) 0%,
+        var(--ai-medium-gray) 100%
+    );
+    border: 1px solid var(--ai-border);
+    box-shadow:
+        0 10px 40px rgba(0, 0, 0, 0.5),
+        inset 0 0 40px rgba(255, 255, 255, 0.03);
+}
+
+/* Animated AI Pattern */
+@keyframes neural-pulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.7; }
+}
+
+.home-info::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(
+        circle,
+        rgba(255, 255, 255, 0.1) 0%,
+        transparent 70%
+    );
+    animation: neural-pulse 4s ease-in-out infinite;
+    pointer-events: none;
+}
+
+/* Tags Styling */
+.post-tags a {
+    background: var(--ai-dark-gray);
+    border: 1px solid var(--ai-border);
+    color: var(--ai-light-gray);
+    transition: all 0.3s ease;
+}
+
+.post-tags a:hover {
+    background: var(--ai-medium-gray);
+    border-color: var(--ai-accent);
+    color: var(--ai-white);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+/* Pagination */
+.pagination a {
+    background: var(--ai-dark-gray);
+    border: 1px solid var(--ai-border);
+}
+
+.pagination a:hover {
+    background: var(--ai-medium-gray);
+    border-color: var(--ai-accent);
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 10px;
+    background: var(--ai-black);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--ai-medium-gray);
+    border: 1px solid var(--ai-border);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--ai-light-gray);
+}
+
+/* Terminal Cursor Effect */
+@keyframes cursor-blink {
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+}
+
+.terminal-cursor::after {
+    content: '▊';
+    animation: cursor-blink 1s infinite;
+    margin-left: 2px;
+}
