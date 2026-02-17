@@ -1,0 +1,17 @@
+<!-- Google AdSense In-Article Ad -->
+<!-- To use in article content: {{ partial "adsense-article.html" . }} -->
+
+{{ if .Site.Params.googleAdsense }}
+<div class="adsense-article" style="margin: 2rem auto; max-width: 100%; text-align: center;">
+  <!-- In-article Ad -->
+  <ins class="adsbygoogle"
+       style="display:block; text-align:center;"
+       data-ad-layout="in-article"
+       data-ad-format="fluid"
+       data-ad-client="{{ .Site.Params.googleAdsense }}"
+       data-ad-slot="YYYYYYYYYY"></ins>
+  <script>
+       (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+</div>
+{{ end }}

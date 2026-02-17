@@ -14,6 +14,12 @@ theme = 'PaperMod'
   ShowPostNavLinks = true
   ShowCodeCopyButtons = true
 
+  # SEO Settings
+  images = ['/images/hero-ai-network.svg']
+
+  # Google Adsense
+  # googleAdsense = "ca-pub-XXXXXXXXXXXXXXXXX"  # Replace with your AdSense ID
+
   # Philosophical Dark Theme
   defaultTheme = 'dark'
   disableThemeToggle = true
@@ -28,6 +34,16 @@ Exploring the philosophy of mind, psychology of technology, and the nature of be
   [[params.socialIcons]]
     name = 'github'
     url = 'https://github.com'
+
+  # SEO and Analytics
+  [params.analytics.google]
+    ID = ""  # Add your Google Analytics ID (e.g., G-XXXXXXXXXX)
+    SiteVerificationTag = ""  # Google Search Console verification
+
+  [params.schema]
+    publisherType = "Organization"
+    publisherName = "Mind & Machine"
+    publisherLogo = "/images/ai-icon.svg"
 
   [params.assets]
     favicon = '/images/ai-icon.svg'

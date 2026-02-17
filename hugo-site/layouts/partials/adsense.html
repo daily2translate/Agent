@@ -1,0 +1,17 @@
+<!-- Google AdSense Display Ad -->
+<!-- To use: {{ partial "adsense.html" . }} -->
+
+{{ if .Site.Params.googleAdsense }}
+<div class="adsense-container" style="text-align: center; margin: 2rem 0; padding: 1rem; background: var(--entry); border-radius: 8px;">
+  <!-- Responsive Ad Unit -->
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="{{ .Site.Params.googleAdsense }}"
+       data-ad-slot="XXXXXXXXXX"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>
+       (adsbygoogle = window.adsbygoogle || []).push({});
+  </script>
+</div>
+{{ end }}
