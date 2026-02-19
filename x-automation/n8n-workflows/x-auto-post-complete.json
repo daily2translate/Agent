@@ -1,0 +1,242 @@
+{
+  "name": "X Auto Post - Complete Thread",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "x-auto-post",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "x-auto-post"
+    },
+    {
+      "parameters": {
+        "operation": "post",
+        "text": "={{ $json.main_tweet || $json.tweets[0].text }}",
+        "additionalFields": {}
+      },
+      "id": "post-main-tweet",
+      "name": "Post Main Tweet",
+      "type": "n8n-nodes-base.twitter",
+      "typeVersion": 2,
+      "position": [460, 300],
+      "credentials": {
+        "twitterOAuth1Api": {
+          "id": "nBY9kzhLAyoK7Pdl",
+          "name": "X Main Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "has-replies",
+              "leftValue": "={{ $json.replies || $json.tweets }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "check-replies",
+      "name": "Has Replies?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "replies-array",
+              "name": "replies",
+              "value": "={{ $json.replies || $json.tweets.slice(1) }}",
+              "type": "array"
+            },
+            {
+              "id": "main-tweet-id",
+              "name": "main_tweet_id",
+              "value": "={{ $node['Post Main Tweet'].json.id_str }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "prepare-replies",
+      "name": "Prepare Replies",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [900, 200]
+    },
+    {
+      "parameters": {
+        "mode": "loopOverItems",
+        "batchSize": 1
+      },
+      "id": "loop-replies",
+      "name": "Loop Over Replies",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1120, 200]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "reply-text",
+              "name": "reply_text",
+              "value": "={{ $json.replies[$node['Loop Over Replies'].context['currentRunIndex']].text || $json.replies[$node['Loop Over Replies'].context['currentRunIndex']] }}",
+              "type": "string"
+            },
+            {
+              "id": "tweet-id",
+              "name": "in_reply_to_tweet_id",
+              "value": "={{ $json.main_tweet_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "set-reply-data",
+      "name": "Set Reply Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [1340, 200]
+    },
+    {
+      "parameters": {
+        "operation": "post",
+        "text": "={{ $json.reply_text }}",
+        "additionalFields": {
+          "inReplyToStatusId": "={{ $json.in_reply_to_tweet_id }}"
+        }
+      },
+      "id": "post-reply",
+      "name": "Post Reply",
+      "type": "n8n-nodes-base.twitter",
+      "typeVersion": 2,
+      "position": [1560, 200],
+      "credentials": {
+        "twitterOAuth1Api": {
+          "id": "nBY9kzhLAyoK7Pdl",
+          "name": "X Main Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "success",
+              "name": "success",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "thread-url",
+              "name": "thread_url",
+              "value": "=https://x.com/{{ $node['Post Main Tweet'].json.user.screen_name }}/status/{{ $node['Post Main Tweet'].json.id_str }}",
+              "type": "string"
+            },
+            {
+              "id": "main-tweet-id",
+              "name": "main_tweet_id",
+              "value": "={{ $node['Post Main Tweet'].json.id_str }}",
+              "type": "string"
+            },
+            {
+              "id": "total-tweets",
+              "name": "total_tweets",
+              "value": "={{ ($json.replies ? $json.replies.length : 0) + 1 }}",
+              "type": "number"
+            },
+            {
+              "id": "published-at",
+              "name": "published_at",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "prepare-response",
+      "name": "Prepare Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [900, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "respond-success",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1120, 400]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [[{"node": "Post Main Tweet", "type": "main", "index": 0}]]
+    },
+    "Post Main Tweet": {
+      "main": [[{"node": "Has Replies?", "type": "main", "index": 0}]]
+    },
+    "Has Replies?": {
+      "main": [
+        [{"node": "Prepare Replies", "type": "main", "index": 0}],
+        [{"node": "Prepare Response", "type": "main", "index": 0}]
+      ]
+    },
+    "Prepare Replies": {
+      "main": [[{"node": "Loop Over Replies", "type": "main", "index": 0}]]
+    },
+    "Loop Over Replies": {
+      "main": [[{"node": "Set Reply Data", "type": "main", "index": 0}]]
+    },
+    "Set Reply Data": {
+      "main": [[{"node": "Post Reply", "type": "main", "index": 0}]]
+    },
+    "Post Reply": {
+      "main": [[{"node": "Loop Over Replies", "type": "main", "index": 0}]]
+    },
+    "Prepare Response": {
+      "main": [[{"node": "Respond to Webhook", "type": "main", "index": 0}]]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "versionId": "1"
+}

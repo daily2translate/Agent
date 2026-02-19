@@ -1,0 +1,314 @@
+{
+  "name": "Blogger Auto Post - Scheduled",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 */3 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Every 3 Hours Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://newsapi.org/v2/top-headlines",
+        "authentication": "none",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "country",
+              "value": "kr"
+            },
+            {
+              "name": "category",
+              "value": "technology"
+            },
+            {
+              "name": "pageSize",
+              "value": "5"
+            },
+            {
+              "name": "apiKey",
+              "value": "={{ $env.NEWS_API_KEY || 'YOUR_NEWS_API_KEY' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fetch-news",
+      "name": "Fetch News (Optional)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 200],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://www.googleapis.com/blogger/v3/blogs/{{ $env.BLOGGER_BLOG_ID }}/posts",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "maxResults",
+              "value": "1"
+            },
+            {
+              "name": "orderBy",
+              "value": "UPDATED"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "check-recent-posts",
+      "name": "Check Recent Posts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 400],
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "YOUR_GOOGLE_OAUTH2_CREDENTIAL_ID",
+          "name": "Google Blogger OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// 자동 블로그 포스트 생성\n// 이 노드를 수정하여 원하는 콘텐츠를 생성하세요\n\nconst today = new Date();\nconst dateStr = today.toISOString().split('T')[0];\nconst dayNames = ['일', '월', '화', '수', '목', '금', '토'];\nconst dayName = dayNames[today.getDay()];\n\n// --- 콘텐츠 템플릿 ---\n// 여기를 수정하여 원하는 포스트 내용을 설정하세요\nconst templates = [\n  {\n    title: `[${dateStr}] 오늘의 기술 트렌드`,\n    content: `<h2>📅 ${dateStr} (${dayName}요일) 기술 트렌드</h2>\n<p>오늘의 주요 기술 동향을 정리합니다.</p>\n<h3>🔥 주요 뉴스</h3>\n<ul>\n<li>AI 기술 발전 동향</li>\n<li>클라우드 컴퓨팅 트렌드</li>\n<li>오픈소스 프로젝트 업데이트</li>\n</ul>\n<h3>💡 인사이트</h3>\n<p>기술 트렌드에 대한 분석과 의견을 공유합니다.</p>\n<hr>\n<p><em>이 포스트는 n8n 자동화를 통해 작성되었습니다.</em></p>`,\n    labels: ['기술', '트렌드', '자동화', dateStr]\n  },\n  {\n    title: `[${dateStr}] AI & 프로그래밍 인사이트`,\n    content: `<h2>🤖 ${dateStr} AI & 프로그래밍</h2>\n<p>인공지능과 프로그래밍에 대한 오늘의 인사이트입니다.</p>\n<h3>📊 AI 동향</h3>\n<ul>\n<li>대형 언어 모델(LLM) 업데이트</li>\n<li>AI 코딩 어시스턴트 활용법</li>\n<li>머신러닝 실전 팁</li>\n</ul>\n<h3>💻 개발 팁</h3>\n<p>실무에서 유용한 개발 팁을 공유합니다.</p>\n<hr>\n<p><em>이 포스트는 n8n 자동화를 통해 작성되었습니다.</em></p>`,\n    labels: ['AI', '프로그래밍', '자동화', dateStr]\n  },\n  {\n    title: `[${dateStr}] 생산성 & 자동화 가이드`,\n    content: `<h2>⚡ ${dateStr} 생산성 가이드</h2>\n<p>업무 효율을 높이는 자동화 팁을 공유합니다.</p>\n<h3>🛠 자동화 도구</h3>\n<ul>\n<li>n8n 워크플로우 활용</li>\n<li>API 통합 자동화</li>\n<li>스케줄링 최적화</li>\n</ul>\n<h3>📈 생산성 향상</h3>\n<p>더 적은 시간으로 더 많은 결과를 만드는 방법입니다.</p>\n<hr>\n<p><em>이 포스트는 n8n 자동화를 통해 작성되었습니다.</em></p>`,\n    labels: ['생산성', '자동화', '가이드', dateStr]\n  }\n];\n\n// 요일에 따라 다른 템플릿 선택\nconst templateIndex = today.getDay() % templates.length;\nconst selectedTemplate = templates[templateIndex];\n\nreturn [{\n  json: {\n    title: selectedTemplate.title,\n    content: selectedTemplate.content,\n    labels: selectedTemplate.labels,\n    generatedAt: today.toISOString()\n  }\n}];"
+      },
+      "id": "generate-content",
+      "name": "Generate Blog Content",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [700, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://www.googleapis.com/blogger/v3/blogs/{{ $env.BLOGGER_BLOG_ID }}/posts",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"kind\": \"blogger#post\",\n  \"title\": {{ JSON.stringify($json.title) }},\n  \"content\": {{ JSON.stringify($json.content) }},\n  \"labels\": {{ JSON.stringify($json.labels) }}\n}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "id": "publish-to-blogger",
+      "name": "Publish to Blogger",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [940, 300],
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "YOUR_GOOGLE_OAUTH2_CREDENTIAL_ID",
+          "name": "Google Blogger OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "log-status",
+              "name": "status",
+              "value": "published",
+              "type": "string"
+            },
+            {
+              "id": "log-post-id",
+              "name": "postId",
+              "value": "={{ $json.body.id || $json.id }}",
+              "type": "string"
+            },
+            {
+              "id": "log-post-url",
+              "name": "postUrl",
+              "value": "={{ $json.body.url || $json.url }}",
+              "type": "string"
+            },
+            {
+              "id": "log-title",
+              "name": "title",
+              "value": "={{ $json.body.title || $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "log-time",
+              "name": "publishedAt",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "log-result",
+      "name": "Log Result",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [1160, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "check-success",
+              "leftValue": "={{ $json.statusCode }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "check-success",
+      "name": "Published OK?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [940, 500]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "error-msg",
+              "name": "error",
+              "value": "={{ $json.body.error.message || $json.error || 'Blogger API 호출 실패' }}",
+              "type": "string"
+            },
+            {
+              "id": "error-code",
+              "name": "statusCode",
+              "value": "={{ $json.statusCode || 500 }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "handle-error",
+      "name": "Handle Error",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [1160, 500]
+    }
+  ],
+  "connections": {
+    "Daily 9AM Trigger": {
+      "main": [
+        [
+          {
+            "node": "Check Recent Posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Recent Posts": {
+      "main": [
+        [
+          {
+            "node": "Generate Blog Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Blog Content": {
+      "main": [
+        [
+          {
+            "node": "Publish to Blogger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Publish to Blogger": {
+      "main": [
+        [
+          {
+            "node": "Published OK?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Published OK?": {
+      "main": [
+        [
+          {
+            "node": "Log Result",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "blogger",
+      "id": "1"
+    },
+    {
+      "name": "scheduled",
+      "id": "2"
+    },
+    {
+      "name": "automation",
+      "id": "3"
+    }
+  ],
+  "triggerCount": 1,
+  "pinData": {}
+}

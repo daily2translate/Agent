@@ -1,0 +1,287 @@
+{
+  "name": "Blogger RSS to Post - Auto Curate",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 */3 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Every 3 Hours Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.RSS_FEED_URL || 'https://feeds.feedburner.com/TechCrunch' }}"
+      },
+      "id": "fetch-rss",
+      "name": "Fetch RSS Feed",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      },
+      "id": "limit-items",
+      "name": "Take First Item",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// RSS 피드 아이템을 블로그 포스트로 변환\nconst item = $input.first().json;\n\nconst title = item.title || 'RSS 큐레이션';\nconst link = item.link || item.url || '';\nconst description = item.contentSnippet || item.description || item.summary || '';\nconst pubDate = item.pubDate || item.isoDate || new Date().toISOString();\nconst source = item.creator || item.author || 'RSS Feed';\nconst categories = item.categories || [];\n\n// HTML 콘텐츠 생성\nconst content = `\n<article>\n  <h2>📰 ${title}</h2>\n  <p class=\"meta\">출처: ${source} | 날짜: ${new Date(pubDate).toLocaleDateString('ko-KR')}</p>\n  \n  <div class=\"summary\">\n    <h3>요약</h3>\n    <p>${description}</p>\n  </div>\n  \n  <div class=\"commentary\">\n    <h3>💡 코멘트</h3>\n    <p>이 기사는 최신 기술 트렌드를 잘 보여주고 있습니다. 특히 주목할 점은 다음과 같습니다:</p>\n    <ul>\n      <li>기술 발전의 속도와 방향</li>\n      <li>실무에 적용 가능한 인사이트</li>\n      <li>향후 전망과 영향</li>\n    </ul>\n  </div>\n  \n  <p>🔗 <a href=\"${link}\" target=\"_blank\" rel=\"noopener\">원문 보기</a></p>\n  <hr>\n  <p><em>이 포스트는 n8n RSS 자동화를 통해 큐레이션되었습니다.</em></p>\n</article>\n`;\n\nconst labels = ['RSS큐레이션', '기술뉴스', ...categories.slice(0, 3)];\n\nreturn [{\n  json: {\n    title: `[큐레이션] ${title}`,\n    content: content,\n    labels: labels,\n    originalUrl: link,\n    source: source\n  }\n}];"
+      },
+      "id": "transform-to-post",
+      "name": "Transform to Blog Post",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://www.googleapis.com/blogger/v3/blogs/{{ $env.BLOGGER_BLOG_ID }}/posts/search",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ $json.title.substring(0, 50) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "check-duplicate",
+      "name": "Check Duplicate",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 300],
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "YOUR_GOOGLE_OAUTH2_CREDENTIAL_ID",
+          "name": "Google Blogger OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "no-duplicates",
+              "leftValue": "={{ $json.items ? $json.items.length : 0 }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "is-new-post",
+      "name": "Is New Post?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://www.googleapis.com/blogger/v3/blogs/{{ $env.BLOGGER_BLOG_ID }}/posts",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"kind\": \"blogger#post\",\n  \"title\": {{ JSON.stringify($node['Transform to Blog Post'].json.title) }},\n  \"content\": {{ JSON.stringify($node['Transform to Blog Post'].json.content) }},\n  \"labels\": {{ JSON.stringify($node['Transform to Blog Post'].json.labels) }}\n}",
+        "options": {}
+      },
+      "id": "publish-to-blogger",
+      "name": "Publish to Blogger",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1560, 200],
+      "credentials": {
+        "googleOAuth2Api": {
+          "id": "YOUR_GOOGLE_OAUTH2_CREDENTIAL_ID",
+          "name": "Google Blogger OAuth2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "skip-msg",
+              "name": "message",
+              "value": "중복 포스트 - 스킵됨",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "skip-duplicate",
+      "name": "Skip (Duplicate)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [1560, 400]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "result-msg",
+              "name": "message",
+              "value": "=포스트 발행 완료: {{ $json.title || $json.url }}",
+              "type": "string"
+            },
+            {
+              "id": "result-url",
+              "name": "url",
+              "value": "={{ $json.url || 'N/A' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "log-success",
+      "name": "Log Success",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [1780, 200]
+    }
+  ],
+  "connections": {
+    "10AM & 6PM Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch RSS Feed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch RSS Feed": {
+      "main": [
+        [
+          {
+            "node": "Take First Item",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Take First Item": {
+      "main": [
+        [
+          {
+            "node": "Transform to Blog Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform to Blog Post": {
+      "main": [
+        [
+          {
+            "node": "Check Duplicate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Duplicate": {
+      "main": [
+        [
+          {
+            "node": "Is New Post?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is New Post?": {
+      "main": [
+        [
+          {
+            "node": "Publish to Blogger",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Skip (Duplicate)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Publish to Blogger": {
+      "main": [
+        [
+          {
+            "node": "Log Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "blogger",
+      "id": "1"
+    },
+    {
+      "name": "rss",
+      "id": "2"
+    },
+    {
+      "name": "curation",
+      "id": "3"
+    }
+  ],
+  "triggerCount": 1,
+  "pinData": {}
+}

@@ -1,0 +1,151 @@
+{
+  "name": "X Auto Post - HTTP API",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "x-auto-post",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300],
+      "webhookId": "x-auto-post"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "consumer-key",
+              "name": "consumer_key",
+              "value": "LToCJq6c4UgEZzfGZNqdScGVv",
+              "type": "string"
+            },
+            {
+              "id": "consumer-secret",
+              "name": "consumer_secret",
+              "value": "weuOz1chA0rzqHLV7UhSLPw8pZh3GiNZsud0PqwK2SyPOax9yf",
+              "type": "string"
+            },
+            {
+              "id": "access-token",
+              "name": "access_token",
+              "value": "1677803364107849729-utEfo2V0UYNmZoiL9SVVOa0zLcgUzW",
+              "type": "string"
+            },
+            {
+              "id": "access-token-secret",
+              "name": "access_token_secret",
+              "value": "bkzMnTJVDKnvvXQd9zMFX9OFd66Kx76cH0kidtPyV6tRB",
+              "type": "string"
+            },
+            {
+              "id": "tweet-text",
+              "name": "tweet_text",
+              "value": "={{ $json.main_tweet }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "set-credentials",
+      "name": "Set Credentials",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://api.twitter.com/2/tweets",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "oAuth1Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\"text\": $json.tweet_text} }}",
+        "options": {}
+      },
+      "id": "post-tweet-http",
+      "name": "Post Tweet via HTTP",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 300],
+      "credentials": {
+        "oAuth1Api": {
+          "id": "PLACEHOLDER",
+          "name": "X API OAuth1"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "success",
+              "name": "success",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "tweet-id",
+              "name": "tweet_id",
+              "value": "={{ $json.data.id }}",
+              "type": "string"
+            },
+            {
+              "id": "tweet-text",
+              "name": "tweet_text",
+              "value": "={{ $json.data.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "prepare-response",
+      "name": "Prepare Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "respond-webhook",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1120, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [[{"node": "Set Credentials", "type": "main", "index": 0}]]
+    },
+    "Set Credentials": {
+      "main": [[{"node": "Post Tweet via HTTP", "type": "main", "index": 0}]]
+    },
+    "Post Tweet via HTTP": {
+      "main": [[{"node": "Prepare Response", "type": "main", "index": 0}]]
+    },
+    "Prepare Response": {
+      "main": [[{"node": "Respond to Webhook", "type": "main", "index": 0}]]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "versionId": "1"
+}

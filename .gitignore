@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+.venv/
+
+# OS files
+.DS_Store
+
+# Secrets & credentials
+*.key
+*.key.pub
+client_secret_*.json
+
+# Large files
+*.zip
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Hugo build artifacts
+.hugo_build.lock
+hugo-site/public/
