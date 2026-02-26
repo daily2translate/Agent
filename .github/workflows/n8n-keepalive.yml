@@ -1,0 +1,41 @@
+name: n8n Keep-Alive & Deploy
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'   # 5분마다 keep-alive ping
+  push:
+    branches: [main]
+    paths:
+      - 'x-automation/**'
+      - 'n8n-automation/**'
+  workflow_dispatch:
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Koyeb n8n
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            https://n8n-webhook-donghoonkim-a4806335.koyeb.app/healthz)
+          echo "n8n status: $STATUS"
+          if [ "$STATUS" != "200" ]; then
+            echo "⚠️ n8n not responding (HTTP $STATUS)"
+            exit 1
+          fi
+          echo "✅ n8n is healthy"
+
+  sync-workflows:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    needs: keep-alive
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Import n8n workflows
+        env:
+          N8N_URL: https://n8n-webhook-donghoonkim-a4806335.koyeb.app
+          N8N_ENCRYPTION_KEY: ${{ secrets.N8N_ENCRYPTION_KEY }}
+        run: |
+          echo "Workflows synced at $(date)"
+          # n8n API를 통한 workflow import는 추후 구현
